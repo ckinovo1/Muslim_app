@@ -2,50 +2,33 @@ import 'package:geolocator/geolocator.dart';
 
 enum GeoStatus { enabled, disabled, denied, deniedForever, unknown }
 
-class LocationServiceDisabledException implements Exception{
+class LocationServiceDisabledException implements Exception {
   final String message;
-
   LocationServiceDisabledException([this.message = 'Location service disabled']);
   @override
-  String toString() => message; 
+  String toString() => message;
 }
 
-class LocationPermissionDeniedException implements Exception{
+class LocationPermissionDeniedException implements Exception {
   final String message;
   LocationPermissionDeniedException([this.message = 'Location service denied']);
-
   @override
   String toString() => message;
 }
 
-class LocationPermissionDeniedForeverException implements Exception{
+class LocationPermissionDeniedForeverException implements Exception {
   final String message;
   LocationPermissionDeniedForeverException([this.message = 'Location service denied forever']);
-
   @override
   String toString() => message;
 }
 
-
-
-
 class GeolocatorService {
-// ignore: body_might_complete_normally_nullable
-Future<Position?> getCurrentPosition({
-  LocationAccuracy accuracy = LocationAccuracy.high,int retries = 3,Duration timeout = const Duration(seconds: 10)
-}) async {
-  if (!await Geolocator.isLocationServiceEnabled()){
-    throw LocationServiceDisabledException();
-  }
-}
-
-  static const int maxRetryCount = 3; 
+  static const int maxRetryCount = 3;
 
   Future<GeoStatus> checkGeoService() async {
     bool isEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!isEnabled) {
-      return GeoStatus.disabled;
-    }
+    if (!isEnabled) return GeoStatus.disabled;
 
     LocationPermission perm = await Geolocator.checkPermission();
     switch (perm) {
@@ -61,7 +44,6 @@ Future<Position?> getCurrentPosition({
     }
   }
 
-  /// Запрашивает разрешение на использование геолокации
   Future<GeoStatus> requestGeoPermission() async {
     LocationPermission perm = await Geolocator.requestPermission();
     switch (perm) {
@@ -74,26 +56,18 @@ Future<Position?> getCurrentPosition({
     }
   }
 
-  /// Получает текущее положение пользователя
   Future<Position?> getCurrentLocation({bool retryOnFailure = true}) async {
     GeoStatus status = await checkGeoService();
-    if (status == GeoStatus.disabled || status == GeoStatus.deniedForever) {
-      return null;
-    }
+    if (status == GeoStatus.disabled || status == GeoStatus.deniedForever) return null;
 
     if (status == GeoStatus.denied) {
       status = await requestGeoPermission();
-      if (status != GeoStatus.enabled) {
-        return null;
-      }
+      if (status != GeoStatus.enabled) return null;
     }
 
     for (var i = 0; i <= maxRetryCount; i++) {
       try {
-        Position pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
-        return pos;
+        return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
       } catch (_) {}
     }
 
