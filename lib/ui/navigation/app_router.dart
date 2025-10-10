@@ -4,27 +4,25 @@ import 'package:muslim_app/factories/screen_factory.dart';
 
 class AppRouter {
   late final GoRouter router;
-  final ScreenFactory _factory = ScreenFactory();
+  final ScreenFactory _factory;
 
-  AppRouter() {
+  AppRouter({required ScreenFactory screenFactory}) : _factory = screenFactory {
     router = GoRouter(
       routes: [
         ShellRoute(
-          builder: (context, state, child) {
-            return MainScreen(child: child);
-          },
+          builder: (context, state, child) => MainScreen(child: child),
           routes: [
             GoRoute(
               path: '/prayer',
-              builder: (_, _) => _factory.makePrayerScreen(),
+              builder: (_, __) => _factory.makePrayerScreen(),
             ),
             GoRoute(
               path: '/service',
-              builder: (_, _) => _factory.makeServiceScreen(),
+              builder: (_, __) => _factory.makeServiceScreen(),
             ),
             GoRoute(
               path: '/settings',
-              builder: (_, _) => _factory.makeSettingsScreen(),
+              builder: (_, __) => _factory.makeSettingsScreen(),
             ),
             GoRoute(
               path: '/azkar',
@@ -34,23 +32,10 @@ class AppRouter {
               path: '/tasbeeh',
               builder: (_, __) => _factory.makeDummyScreen("Тасбих"),
             ),
-            GoRoute(
-              path: '/qibla',
-              builder: (_, __) => _factory.makeDummyScreen("Кибла"),
-            ),
-
-            GoRoute(
-              path: '/sunnah',
-              builder: (_, __) => _factory.makeDummyScreen("Сунна намаз"),
-            ),
-            GoRoute(
-              path: '/calendar',
-              builder: (_, __) => _factory.makeDummyScreen("Календарь"),
-            ),
           ],
         ),
       ],
-      initialLocation: '/service',
+      initialLocation: '/prayer',
     );
   }
 }

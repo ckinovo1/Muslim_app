@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:muslim_app/ui/navigation/app_router.dart';
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AppRouter appRouter;
+
+  const MyApp({super.key, required this.appRouter});
 
   @override
   Widget build(BuildContext context) {
-    final _appRouter = AppRouter();
     return MaterialApp.router(
-      
-      routerConfig: _appRouter.router,
+      routerConfig: appRouter.router,
       debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+        ),
+      ),
     );
   }
 }

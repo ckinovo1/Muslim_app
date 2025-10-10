@@ -4,6 +4,7 @@ import 'package:muslim_app/bloc/prayer/prayer_bloc.dart';
 
 class PrayerScreen extends StatefulWidget {
   const PrayerScreen({super.key});
+
   @override
   State<PrayerScreen> createState() => _PrayerScreenState();
 }
@@ -18,24 +19,32 @@ class _PrayerScreenState extends State<PrayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black87,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text("Время намазов",
-            style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-        backgroundColor: const Color.fromARGB(0, 32, 37, 32),
+        backgroundColor: Colors.black,
+        title: const Text(
+          '🕌 Время намазов',
+          style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+        ),
       ),
       body: BlocBuilder<PrayerBloc, PrayerBlocState>(
         builder: (context, state) {
           if (state is PrayerLoading || state is PrayerBlocInitial) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CircularProgressIndicator(color: Colors.green));
           }
 
           if (state is PrayerError) {
-            return Center(child: Text("Ошибка: ${state.message}"));
+            return Center(
+              child: Text(
+                'Ошибка: ${state.message}',
+                style: const TextStyle(color: Colors.redAccent),
+              ),
+            );
           }
 
           if (state is PrayerLoaded) {
-            return _PrayerListView(data: state.data);
+            return _PrayerListView(prayers: state.prayers);
           }
 
           return const SizedBox();
@@ -46,32 +55,20 @@ class _PrayerScreenState extends State<PrayerScreen> {
 }
 
 class _PrayerListView extends StatelessWidget {
-  final dynamic data;
-  const _PrayerListView({required this.data});
+  final Map<String, String> prayers;
+  const _PrayerListView({required this.prayers});
 
   @override
   Widget build(BuildContext context) {
-    final timings = data.data.timings;
-
-    final prayers = {
-      "Фаджр": timings.fajr,
-      "Восход": timings.sunrise,
-      "Зухр": timings.dhuhr,
-      "Аср": timings.asr,
-      "Магриб": timings.maghrib,
-      "Иша": timings.isha,
-    };
-
     final now = TimeOfDay.now();
-    String? nextPrayerName;
-    String? nextPrayerTime;
+
+    MapEntry<String, String>? nextPrayer;
     for (var entry in prayers.entries) {
-      final parts = entry.value.split(":");
-      final prayerTime = TimeOfDay(
-          hour: int.tryParse(parts[0]) ?? 0, minute: int.tryParse(parts[1]) ?? 0);
+      final parts = entry.value.split(':');
+      final prayerTime =
+          TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
       if (_isAfter(now, prayerTime)) {
-        nextPrayerName = entry.key;
-        nextPrayerTime = entry.value;
+        nextPrayer = entry;
         break;
       }
     }
@@ -79,14 +76,9 @@ class _PrayerListView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(
-          data.data.date.readable,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
-        ),
-        const SizedBox(height: 12),
-        if (nextPrayerName != null)
-          NextPrayerCard(name: nextPrayerName, time: nextPrayerTime!),
-        const SizedBox(height: 16),
+        if (nextPrayer != null)
+          NextPrayerCard(name: nextPrayer.key, time: nextPrayer.value),
+        const SizedBox(height: 20),
         ...prayers.entries
             .map((e) => PrayerListTile(name: e.key, time: e.value))
             .toList(),
@@ -110,14 +102,26 @@ class NextPrayerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       color: Colors.green.shade700,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Text("Следующая молитва", style: TextStyle(color: Colors.white70)),
-          const SizedBox(height: 6),
-          Text("$name - $time",
-              style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold))
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Следующая молитва",
+              style: TextStyle(color: Colors.white70, fontSize: 16),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              "$name - $time",
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -131,14 +135,24 @@ class PrayerListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(name, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18)),
+      contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+      title: Text(
+        name,
+        style: const TextStyle(
+            color: Colors.greenAccent,
+            fontWeight: FontWeight.w600,
+            fontSize: 18),
+      ),
       trailing: Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Colors.black),
-        height: 30,
-        width: 60,
-        child: Center(
-            child: Text(time,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.green))),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade900,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          time,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }

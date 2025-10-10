@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "711064841955",
+    "project_id": "muslimapp-ad284",
+    "storage_bucket": "muslimapp-ad284.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:711064841955:android:64dc262bf487d648c51fd6",
+        "android_client_info": {
+          "package_name": "com.example.muslim_app_new"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAx_-b-cA4ZA8y0Ysixh5n3v4fN_WxKM7U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
